@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">User Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h5>{{ current_user.username }}</h5>
+                <p class="text-muted">{{ current_user.email }}</p>
+                <p><strong>Account Type:</strong> {% if current_user.is_admin %}Admin{% else %}User{% endif %}</p>
+                <p><strong>Member Since:</strong> {{ current_user.created_at|format_date }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Borrowed Books</h4>
+            </div>
+            <div class="card-body">
+                {% if borrowed_books %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Borrowed Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in borrowed_books %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('books.view', book_id=item.book._id) }}">
+                                        {{ item.book.title }}
+                                    </a>
+                                </td>
+                                <td>{{ item.transaction.borrow_date|format_date }}</td>
+                                <td>{{ item.transaction.due_date|format_date }}</td>
+                                <td>
+                                    {% if item.transaction.due_date < now %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                    {% else %}
+                                    <span class="badge bg-success">On Time</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('books.return_book', transaction_id=item.transaction._id) }}">
+                                        <button type="submit" class="btn btn-sm btn-primary">Return</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    You haven't borrowed any books yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

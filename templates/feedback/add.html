@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Feedback - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Leave Feedback</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('books.index') }}">Books</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('books.view', book_id=book._id) }}">{{ book.title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Leave Feedback</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Your Feedback for "{{ book.title }}"</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('feedback.add_feedback', book_id=book._id) }}">
+                    <div class="mb-4">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-input">
+                            <div class="stars">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if existing_feedback and existing_feedback.rating == i %}checked{% elif not existing_feedback and i == 5 %}checked{% endif %} />
+                                <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                                {% endfor %}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Your Review</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="6" placeholder="Share your thoughts about this book...">{{ existing_feedback.comment if existing_feedback else '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('books.view', book_id=book._id) }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if existing_feedback %}
+                            Update Feedback
+                            {% else %}
+                            Submit Feedback
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .rating-input {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    
+    .stars {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        position: relative;
+    }
+    
+    .stars input {
+        display: none;
+    }
+    
+    .stars label {
+        cursor: pointer;
+        font-size: 2rem;
+        padding: 0 0.2rem;
+        color: #ddd;
+        transition: all 0.3s ease;
+    }
+    
+    .stars label:hover,
+    .stars label:hover ~ label,
+    .stars input:checked ~ label {
+        color: #feca57;
+    }
+    
+    .stars input:checked ~ label {
+        animation: jump 0.3s ease;
+    }
+    
+    @keyframes jump {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}

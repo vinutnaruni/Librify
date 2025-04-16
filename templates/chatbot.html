@@ -1,0 +1,37 @@
+<div class="chatbot-container" id="chatbotContainer">
+    <div class="chatbot-header" id="chatbotHeader">
+        <div class="chatbot-title">
+            <i class="fas fa-robot me-2"></i> Library Assistant
+        </div>
+        <div class="chatbot-actions">
+            <button class="chatbot-minimize" id="chatbotMinimize">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="chatbot-body" id="chatbotBody">
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Hello! I'm your library assistant. How can I help you today?
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-suggestions" id="chatbotSuggestions">
+            <button class="suggestion-btn" data-question="Do you have Harry Potter books?">Do you have Harry Potter?</button>
+            <button class="suggestion-btn" data-question="What are the library hours?">Library hours?</button>
+            <button class="suggestion-btn" data-question="What books have I borrowed?">My borrowed books?</button>
+            <button class="suggestion-btn" data-question="What are the most popular books?">Popular books?</button>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Type your question here...">
+            <button id="chatbotSend">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="chatbot-toggle" id="chatbotToggle">
+    <i class="fas fa-comments"></i>
+</div>

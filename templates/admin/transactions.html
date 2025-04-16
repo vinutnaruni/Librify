@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Transactions - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Manage Transactions</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Transactions</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Filter Transactions</h4>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('admin.transactions') }}" class="row g-3">
+                    <div class="col-md-4">
+                        <select class="form-select" name="status" onchange="this.form.submit()">
+                            <option value="">All Transactions</option>
+                            <option value="borrowed" {% if status_filter == 'borrowed' %}selected{% endif %}>Borrowed</option>
+                            <option value="returned" {% if status_filter == 'returned' %}selected{% endif %}>Returned</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ url_for('admin.transactions') }}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Transactions</h4>
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>User</th>
+                                <th>Borrowed Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Fine</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('books.view', book_id=transaction.book._id) }}">
+                                        {{ transaction.book.title }}
+                                    </a>
+                                </td>
+                                <td>{{ transaction.user.username }}</td>
+                                <td>{{ transaction.borrow_date|format_date }}</td>
+                                <td>{{ transaction.due_date|format_date }}</td>
+                                <td>
+                                    {% if transaction.return_date %}
+                                    {{ transaction.return_date|format_date }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.status == 'borrowed' %}
+                                        {% if transaction.due_date < now %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Borrowed</span>
+                                        {% endif %}
+                                    {% else %}
+                                    <span class="badge bg-secondary">Returned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.status == 'borrowed' and transaction.due_date < now %}
+                                    ${{ transaction.due_date|calculate_fine|round(2) }}
+                                    {% elif transaction.status == 'returned' and transaction.return_date > transaction.due_date %}
+                                    ${{ transaction.due_date|calculate_fine(transaction.return_date)|round(2) }}
+                                    {% else %}
+                                    $0.00
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.status == 'borrowed' %}
+                                    <form method="POST" action="{{ url_for('books.return_book', transaction_id=transaction._id) }}">
+                                        <button type="submit" class="btn btn-sm btn-primary">Return</button>
+                                    </form>
+                                    {% else %}
+                                    <button class="btn btn-sm btn-secondary" disabled>Returned</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No transactions found matching your criteria.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

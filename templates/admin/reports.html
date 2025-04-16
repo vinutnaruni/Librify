@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Reports</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Reports</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Popular Books</h4>
+            </div>
+            <div class="card-body">
+                {% if popular_books %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Author</th>
+                                <th>Times Borrowed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in popular_books %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('books.view', book_id=book._id) }}">
+                                        {{ book.title }}
+                                    </a>
+                                </td>
+                                <td>{{ book.author }}</td>
+                                <td>{{ book.borrow_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No borrowing data available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Genre Distribution</h4>
+            </div>
+            <div class="card-body">
+                {% if genre_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Genre</th>
+                                <th>Number of Books</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in genre_stats %}
+                            <tr>
+                                <td>{{ stat.genre }}</td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No genre data available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Overdue Books</h4>
+            </div>
+            <div class="card-body">
+                {% if overdue_books %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>User</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Fine</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in overdue_books %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('books.view', book_id=item.book._id) }}">
+                                        {{ item.book.title }}
+                                    </a>
+                                </td>
+                                <td>{{ item.user.username }}</td>
+                                <td>{{ item.transaction.due_date|format_date }}</td>
+                                <td>
+                                    {% set days_overdue = ((now - item.transaction.due_date).days) %}
+                                    {{ days_overdue }}
+                                </td>
+                                <td>${{ (days_overdue * 0.5)|round(2) }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('books.return_book', transaction_id=item.transaction._id) }}">
+                                        <button type="submit" class="btn btn-sm btn-primary">Return</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No overdue books at this time.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
